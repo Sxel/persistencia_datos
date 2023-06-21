@@ -3,46 +3,28 @@ import java.sql.*;
 
 public class MessageDAO {
 
-    private static Connection con;
-    private static PreparedStatement ps;
+
 
     public static void createMessageDB(Message message) {
-
         ConnectDatabase db_connect = new ConnectDatabase();
+        Connection connection = null;
 
-        try (Connection conexion = db_connect.getConnection()) {
-
-            try {
-                String query = "INSERT INTO mensajes ( mensaje, autor_mensaje) VALUES (?,?)";
-                //INSERT INTO `mensajes` (`id_mensaje`, `mensaje`, `autor_mensaje`, `fecha_mensaje`) VALUES (NULL, 'afasfsfasfa', 'aasdfa', current_timestamp());
-                ps=conexion.prepareStatement(query);
-                ps.setString(1, message.getMessage());
-                ps.setString(2, message.getAuthor_message());
-                ps.executeUpdate();
-                System.out.println("mensaje creado hno");
-            } catch (SQLException ex) {
-
-                System.out.println(ex);
-
-            }
-        } catch (SQLException e) {
-            System.out.println("lelga aca");
-            System.out.println(e);
-        }/**finally {
-         try {
-         if (MessageDAO.con != null) {
-         MessageDAO.con.close();
-         }
-         if(ps != null) {
-         ps.close();
-         }
-         } catch (SQLException e) {
-         e.printStackTrace();
-         }
-         }**/
-
-
+        try {
+            connection = db_connect.getConnection();
+            String query = "INSERT INTO mensajes (mensaje, autor_mensaje) VALUES (?,?)";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, message.getMessage());
+            ps.setString(2, message.getAuthor_message());
+            ps.executeUpdate();
+            System.out.println("Mensaje creado correctamente");
+        } catch (SQLException ex) {
+            System.out.println("Error al crear el mensaje: " + ex.getMessage());
+        } finally {
+            db_connect.closeConnection(connection);
+        }
     }
+
+
 
     public static void readMessage() {
 
@@ -98,7 +80,27 @@ public class MessageDAO {
         }
     }
 
-    public static void refreshMessageDB(Message message) {
+    public static void refreshMessageDB(Message message, int id_message) {
+
+        ConnectDatabase db_connect = new ConnectDatabase();
+        try (Connection conexion = db_connect.getConnection()){
+            PreparedStatement ps = null;
+
+            try {
+                String query ="UPDATE mensajes SET mensaje = ? WHERE id_mensaje = ?";
+                ps = conexion.prepareStatement(query);
+                ps.setString(1, message.getMessage());
+                ps.setInt(2, id_message);
+                ps.executeUpdate();
+                System.out.println("el mensaje se edito papa");
+            } catch (SQLException e){
+                System.out.println(e);
+                System.out.println("f el editar");
+            }
+
+        }catch (SQLException ex){
+            System.out.println(ex);
+        }
 
     }
 }
